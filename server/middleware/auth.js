@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/UserMock');
+const User = require('../models/User');
 
 const auth = async (req, res, next) => {
   try {
@@ -10,15 +10,12 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_key_here_change_in_production');
-    const userData = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId).select('-password');
     
-    if (!userData) {
+    if (!user) {
       return res.status(401).json({ message: 'Token is not valid' });
     }
 
-    // Remove password from user object
-    const user = { ...userData };
-    delete user.password;
     req.user = user;
     next();
   } catch (error) {

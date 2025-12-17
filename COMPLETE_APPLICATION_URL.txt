@@ -1,0 +1,43 @@
+========================================
+   COMPLETE APPLICATION - SINGLE URL
+========================================
+
+✅ WORKING URL:
+   http://localhost:5000
+
+This single URL includes:
+  ✅ Frontend (React Application)
+  ✅ Backend API (/api/*)
+  ✅ MongoDB Database (local)
+
+========================================
+   WHAT'S INCLUDED
+========================================
+
+Frontend Routes:
+  http://localhost:5000/          - Home page
+  http://localhost:5000/login    - Login page
+  http://localhost:5000/register - Register page
+  http://localhost:5000/dashboard - User dashboard
+
+Backend API:
+  http://localhost:5000/api/health  - Health check
+  http://localhost:5000/api/events   - Events API
+  http://localhost:5000/api/auth     - Authentication API
+  http://localhost:5000/api/rsvp     - RSVP API
+
+Database:
+  MongoDB: local database
+  Collections: users, events
+  View in: MongoDB Compass
+
+========================================
+   OPEN IN BROWSER
+========================================
+
+http://localhost:5000
+
+Everything works from this single URL!
+
+========================================
+

@@ -1,0 +1,47 @@
+========================================
+   WORKING APPLICATION URLs
+========================================
+
+✅ BACKEND SERVER (RUNNING):
+   Main URL:     http://localhost:5000
+   Health:       http://localhost:5000/api/health
+   API Base:     http://localhost:5000/api
+   Events:       http://localhost:5000/api/events
+
+⏳ FRONTEND SERVER (COMPILING):
+   Main URL:     http://localhost:3001
+   Status:       React is compiling (1-2 minutes)
+   
+   Check PowerShell windows that opened:
+   - One window shows "Backend Server - Port 5000"
+   - One window shows "Frontend Server - Port 3001"
+   
+   Wait for frontend to show "Compiled successfully!"
+
+========================================
+   QUICK TEST
+========================================
+
+1. Test Backend (Works Now):
+   Open: http://localhost:5000/api/health
+   Should see: {"status":"OK","message":"Server is running with Mock Data"}
+
+2. Test Events (Works Now):
+   Open: http://localhost:5000/api/events
+   Should see: JSON with 2 sample events
+
+3. Test Frontend (Wait 1-2 min):
+   Open: http://localhost:3001
+   Should see: Event Platform homepage
+
+========================================
+   STATUS
+========================================
+
+Backend:  ✅ RUNNING on port 5000
+Frontend: ⏳ COMPILING on port 3001
+
+Check the PowerShell windows for compilation progress!
+
+========================================
+

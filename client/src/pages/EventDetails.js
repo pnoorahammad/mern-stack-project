@@ -42,10 +42,11 @@ const EventDetails = () => {
 
     try {
       await api.post(`/rsvp/${id}`);
-      setMessage('Successfully RSVP\'d to this event!');
+      setMessage('Successfully joined the event!');
       fetchEvent();
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Failed to RSVP. Please try again.');
+      const errorMsg = error.response?.data?.message || 'Failed to join. Please try again.';
+      setMessage(errorMsg);
     } finally {
       setRsvpLoading(false);
     }
@@ -57,10 +58,10 @@ const EventDetails = () => {
 
     try {
       await api.delete(`/rsvp/${id}`);
-      setMessage('Successfully cancelled your RSVP');
+      setMessage('Successfully disconnected from the event');
       fetchEvent();
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Failed to cancel RSVP. Please try again.');
+      setMessage(error.response?.data?.message || 'Failed to disconnect. Please try again.');
     } finally {
       setRsvpLoading(false);
     }
@@ -103,6 +104,13 @@ const EventDetails = () => {
   const hasRSVPd = user && event.attendees.some(attendee => attendee._id === user.id);
   const isFull = event.attendees.length >= event.capacity;
   const isPast = new Date(event.date) < new Date();
+  
+  // Check if RSVP is open (1 minute after creation - respect time)
+  const rsvpOpenAt = event.rsvpOpenAt 
+    ? new Date(event.rsvpOpenAt) 
+    : new Date(new Date(event.createdAt || Date.now()).getTime() + 60 * 1000);
+  const canRSVP = new Date() >= rsvpOpenAt;
+  const waitTime = canRSVP ? 0 : Math.ceil((rsvpOpenAt.getTime() - new Date().getTime()) / 1000);
 
   return (
     <div className="event-details">
@@ -164,16 +172,32 @@ const EventDetails = () => {
                             className="btn btn-danger"
                             disabled={rsvpLoading}
                           >
-                            {rsvpLoading ? 'Cancelling...' : 'Cancel RSVP'}
+                            {rsvpLoading ? 'Disconnecting...' : 'Disconnect from Event'}
                           </button>
                         ) : (
-                          <button
-                            onClick={handleRSVP}
-                            className="btn btn-primary"
-                            disabled={rsvpLoading || isFull}
-                          >
-                            {rsvpLoading ? 'Processing...' : isFull ? 'Event Full' : 'RSVP to Event'}
-                          </button>
+                          <>
+                            {canRSVP ? (
+                              <button
+                                onClick={handleRSVP}
+                                className="btn btn-primary"
+                                disabled={rsvpLoading || isFull}
+                              >
+                                {rsvpLoading ? 'Joining...' : isFull ? 'Event Full' : 'Join Event'}
+                              </button>
+                            ) : (
+                              <div>
+                                <button
+                                  className="btn btn-secondary"
+                                  disabled={true}
+                                >
+                                  RSVP Opens in {waitTime}s
+                                </button>
+                                <p style={{ marginTop: '10px', color: '#666', fontSize: '14px' }}>
+                                  Please wait at least 1 minute after event creation
+                                </p>
+                              </div>
+                            )}
+                          </>
                         )}
                       </>
                     )}

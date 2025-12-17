@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
-const Event = require('../models/EventMock');
+const Event = require('../models/Event');
 const upload = require('../config/multer');
 const fs = require('fs');
 const path = require('path');
@@ -26,16 +26,10 @@ router.get('/', async (req, res) => {
       query.date = { $gte: dateFilter };
     }
 
-    let events = await Event.find(query);
-    
-    // Populate creator and attendees
-    for (let event of events) {
-      await event.populate('creator');
-      await event.populate('attendees');
-    }
-    
-    // Sort by date
-    events.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const events = await Event.find(query)
+      .populate('creator', 'name email')
+      .populate('attendees', 'name email')
+      .sort({ date: 1 });
 
     res.json(events);
   } catch (error) {
@@ -49,11 +43,9 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
-    if (event) {
-      await event.populate('creator');
-      await event.populate('attendees');
-    }
+    const event = await Event.findById(req.params.id)
+      .populate('creator', 'name email')
+      .populate('attendees', 'name email');
 
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
@@ -89,6 +81,9 @@ router.post('/', auth, upload.single('image'), [
     const { title, description, date, location, capacity } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : '';
 
+    // RSVP opens 1 minute after event creation (respect time)
+    const rsvpOpenAt = new Date(Date.now() + 60 * 1000);
+
     const event = new Event({
       title,
       description,
@@ -97,7 +92,8 @@ router.post('/', auth, upload.single('image'), [
       capacity: parseInt(capacity),
       image,
       creator: req.user._id,
-      attendees: []
+      attendees: [],
+      rsvpOpenAt: rsvpOpenAt
     });
 
     await event.save();
@@ -177,8 +173,8 @@ router.put('/:id', auth, upload.single('image'), [
     event.capacity = parseInt(capacity);
 
     await event.save();
-    await event.populate('creator');
-    await event.populate('attendees');
+    await event.populate('creator', 'name email');
+    await event.populate('attendees', 'name email');
 
     res.json(event);
   } catch (error) {

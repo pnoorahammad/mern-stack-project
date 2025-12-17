@@ -37,7 +37,14 @@ const eventSchema = new mongoose.Schema({
   attendees: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  rsvpOpenAt: {
+    type: Date,
+    default: function() {
+      // RSVP opens 1 minute after event creation
+      return new Date(Date.now() + 60 * 1000);
+    }
+  }
 }, {
   timestamps: true
 });

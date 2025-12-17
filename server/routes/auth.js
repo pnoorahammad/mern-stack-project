@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const User = require('../models/UserMock');
+const User = require('../models/User');
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -34,7 +34,8 @@ router.post('/register', [
     }
 
     // Create new user
-    const user = await User.create({ name, email, password });
+    const user = new User({ name, email, password });
+    await user.save();
 
     // Generate token
     const token = generateToken(user._id);
@@ -69,12 +70,10 @@ router.post('/login', [
     const { email, password } = req.body;
 
     // Find user
-    const userData = await User.findOne({ email });
-    if (!userData) {
+    const user = await User.findOne({ email });
+    if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-
-    const user = new User(userData);
 
     // Check password
     const isMatch = await user.comparePassword(password);
